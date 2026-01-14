@@ -3,6 +3,7 @@ package com.anascoding.auth_system.repository;
 import com.anascoding.auth_system.entity.AppAuthProvider;
 import com.anascoding.auth_system.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -21,4 +22,8 @@ public interface AppUserRepo extends JpaRepository<AppUser,String> {
 
     Optional<AppUser> findByAppAuthProviderAndProviderId(
             AppAuthProvider appAuthProvider, String providerId);
+
+    @Query(nativeQuery = true , value = "SELECT COUNT(id) as count FROM `app-user` ")
+    long count();
+
 }

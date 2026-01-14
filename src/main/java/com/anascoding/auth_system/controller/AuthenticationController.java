@@ -2,7 +2,6 @@ package com.anascoding.auth_system.controller;
 
 
 import com.anascoding.auth_system.dto.request.EmailAuthRequest;
-import com.anascoding.auth_system.service.AuthenticationService;
 import com.anascoding.auth_system.service.EmailAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
