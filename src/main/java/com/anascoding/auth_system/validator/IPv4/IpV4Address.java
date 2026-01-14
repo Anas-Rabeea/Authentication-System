@@ -16,7 +16,6 @@ import java.lang.annotation.Target;
 )
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(List.class)
 public @interface IpV4Address {
     String message() default "Invalid IPv4 Address.";
 
