@@ -43,4 +43,22 @@ public class EmailVerificationService {
                 verificationEmailTitle
         );
     }
+
+    public void verifyEmail(String token){
+
+        String redisKey = "Token_2RI#@L:" + token;
+        String email = redisTemplate
+                            .opsForValue()
+                            .get(redisKey);
+        // if the given token = token in redis > verify isEmailVerified = true else = false and exception
+        if ( email == null)
+            throw new RuntimeException("No email found with this token");
+
+        AppUser user =  this.userRepo
+                            .findByEmail(email)
+                            .orElseThrow(() -> new UsernameNotFoundException("Email not found."));
+        user.setEmailVerified(true);
+        this.userRepo.save(user); // to update the new registered user email verification state
+        redisTemplate.delete(redisKey);
+    }
 }
