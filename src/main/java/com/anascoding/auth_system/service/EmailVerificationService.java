@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailVerificationService {
 
+    // Key = Email , Value = Token
+
     @Async
     public void sendVerificationEmail(@Email @NotBlank String email) {
 
