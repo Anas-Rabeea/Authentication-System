@@ -1,6 +1,5 @@
 package com.anascoding.auth_system.dto.request;
 
-import com.anascoding.auth_system.entity.Role;
 import com.anascoding.auth_system.validator.NonDisposalEmail.NonDisposalEmail;
 import com.anascoding.auth_system.validator.StrongPassword.StrongPassword;
 import jakarta.persistence.EnumType;
@@ -19,10 +18,10 @@ public record EmailAuthRequest(
         @NonDisposalEmail
         String email,
 
-        //@Min(value = 10, message = "Password Should be at least 10")
-        //@Max(value = 100, message = "Password Should be at most 100")
         @NotBlank(message = "Password cant be empty.")
-        //@StrongPassword
+//        @Min(value = 10, message = "Password Should be at least 10")
+//        @Max(value = 100, message = "Password Should be at most 100")
+//        @StrongPassword
         String password,
 
         @Enumerated(EnumType.STRING)

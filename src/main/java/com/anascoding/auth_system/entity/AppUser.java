@@ -58,8 +58,9 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        // isEmailVerified() || appAuthProvider != LOCAL
-        return (isEmailVerified() || isPhoneVerified()) && appAuthProvider == LOCAL ;
+        if(!appAuthProvider.equals(LOCAL))
+            return true; // doesn't matter for oatuh2
+        return emailVerified ;
     }
 
     @Override

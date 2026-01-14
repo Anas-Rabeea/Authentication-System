@@ -52,7 +52,8 @@ logging:
       hibernate:
         type: trace
         stat: debug
-
+      springframework:
+        security: debug
 
 application:
   security:

@@ -1,7 +1,5 @@
-package com.anascoding.auth_system.security;
+package com.anascoding.auth_system.security.jwt;
 
-import com.anascoding.auth_system.security.jwt.JwtUtils;
-import com.anascoding.auth_system.security.jwt.TokenType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +44,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException
     {
 
+        // TODO -- what if the user is already authenticated and go to this endpoint > redirect to /feed
+        String path = request.getRequestURI();
+        // no JWT Validation for this endpoint (Extra step plus the configs in the SecurityConfig Matchers
+        if (path.startsWith("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
         if(request.getHeader("Authorization") !=null) {
             // we will use users email as the token username
@@ -69,7 +75,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String tokenUsername = jwtUtils.extractTokenUserName(extractedToken);
 
             // check if user is not already authenticated
-            if (!SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
+            if ( SecurityContextHolder.getContext().getAuthentication() == null
                     && tokenUsername != null) {
                 // if user is not authenticated , then
                 // we validate the subject of the token and see if it is a valid token or not
@@ -88,7 +94,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     expectedUser.getUsername(),
                                     null,
                                     expectedUser.getAuthorities());
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    authenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
 
                     // set user in the current SecurityContextHolder = this user is currently authenticated
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);

@@ -32,6 +32,7 @@ public class EmailAuthenticationService {
         // if not exist > register + send verification email
         Optional<AppUser> userFromDb = appUserRepo
                 .findByEmail(request.email());
+
         if(userFromDb.isEmpty()){
             AppUser newUser = registerNewUser(request);
             this.verificationService.sendVerificationEmail(request.email());
@@ -39,14 +40,16 @@ public class EmailAuthenticationService {
         }
         // need to convert optional user to AppUser
         AppUser user = userFromDb.get();
-        // try to authenticate User
-        // if succeeded > issue a refresh / access tokens else we verify email and generate token
-        authenticateUser(request);
 
         // Check if email is verified (Some users add email and password and wait till email verification)
         if(!user.isEmailVerified()){
             this.verificationService.sendVerificationEmail(user.getEmail());
+            throw new RuntimeException("Verify your email first");
         }
+
+        // try to authenticate User
+        // if succeeded > issue a refresh / access tokens else we verify email and generate token
+        authenticateUser(request);
 
         return generateAccessToken(user);
     }

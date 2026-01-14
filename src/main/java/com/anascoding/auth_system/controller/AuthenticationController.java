@@ -36,8 +36,4 @@ public class AuthenticationController {
     public ResponseEntity<String> test(){
         return ResponseEntity.ok("Can be accessed without authentication or registeration");
     }
-
-
-
-
 }
