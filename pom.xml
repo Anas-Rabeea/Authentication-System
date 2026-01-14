@@ -111,6 +111,14 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+<!--        Adding Gmail / SMTP Dependency {free to yse }-->
+<!--        Setup SMTP From Here : https://www.tuanh.net/blog/spring/tips-for-sending-mail-from-a-spring-boot-application-using-google-as-mail-server-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>   
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security-test</artifactId>
