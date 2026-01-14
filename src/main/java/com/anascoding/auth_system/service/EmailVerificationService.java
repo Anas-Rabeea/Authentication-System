@@ -1,23 +1,36 @@
 package com.anascoding.auth_system.service;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import com.anascoding.auth_system.entity.AppUser;
+import com.anascoding.auth_system.repository.AppUserRepo;
+import com.anascoding.auth_system.service.abstraction.EmailSenderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailVerificationService {
 
-    // Key = Email , Value = Token
-    private static final Duration token_ttl = Duration.ofMinutes(10);
+    // TODO -- set isEmailVerified to true after verification is completed
+
+    // Key = token , Value = email
+    // because user can send 2 verifications in a short period of time
+    // so we make token which will be unique as the key
+    private static final Duration token_ttl = Duration.ofMinutes(3);
+
     private final RedisTemplate<String,String> redisTemplate;
     private final EmailSenderService emailSenderService;
+    private final VerificationTokenService verificationTokenService;
+    private final AppUserRepo userRepo;
 
-    @Async
-    public void sendVerificationEmail(@Email @NotBlank String email) {
 
+    public void sendVerificationEmail(String email) {
 
         String token =  verificationTokenService.generateEmailVerificationToken(10);
         // Token_2RI#@L : To not make token guessing easy (prevents brute-force)
@@ -42,8 +55,12 @@ public class EmailVerificationService {
                 verificationEmailContent,
                 verificationEmailTitle
         );
+        log.info("Sent email verification to" + email);
+
     }
 
+    // token is sent to the user so this method will verify the incoming token
+    // from the link the user clicked on it his mail
     public void verifyEmail(String token){
 
         String redisKey = "Token_2RI#@L:" + token;
@@ -52,12 +69,13 @@ public class EmailVerificationService {
                             .get(redisKey);
         // if the given token = token in redis > verify isEmailVerified = true else = false and exception
         if ( email == null)
-            throw new RuntimeException("No email found with this token");
+            throw new RuntimeException("Invalid Verification Token.");
 
         AppUser user =  this.userRepo
                             .findByEmail(email)
                             .orElseThrow(() -> new UsernameNotFoundException("Email not found."));
         user.setEmailVerified(true);
+        log.info("%s is verified." + email);
         this.userRepo.save(user); // to update the new registered user email verification state
         redisTemplate.delete(redisKey);
     }
