@@ -1,0 +1,103 @@
+package com.anascoding.auth_system.jwt;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Date;
+
+@Component
+public class JwtUtils {
+        private final JwtProperties jwtProperties;
+
+    public JwtUtils(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
+
+    private Key getSecretKey(){
+        return Keys.hmacShaKeyFor(jwtProperties.getSECRET_KEY().getBytes());
+    }
+
+
+    public String buildToken(final String username , TokenType tokenType , long expirationDuration)
+    {
+        return Jwts
+                .builder()
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .claim("type" , tokenType)
+                .setExpiration(new Date(expirationDuration))
+                .signWith(this.getSecretKey() , SignatureAlgorithm.HS256)
+                .compact();
+
+    }
+
+    // generate methods will be used by our Authentication API
+    public String generateAccessToken(String username)
+    {
+        return this.buildToken(
+                username,
+                TokenType.ACCESS_TOKEN ,
+                jwtProperties.getAccessTokenExpiration());
+    }
+
+    public String generateRefreshToken(String username)
+    {
+        return this.buildToken(
+                username,
+                TokenType.REFRESH_TOKEN ,
+                jwtProperties.getRefreshTokenExpiration());
+    }
+
+
+    private Claims extractAllClaims(String token){
+
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(this.getSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        }
+        catch (JwtException exception){
+            throw new JwtException("Invalid JWT Token.");
+        }
+    }
+
+    public Object extractClaimByKey(String token , String claimKey){
+
+                try { return this.extractAllClaims(token).get(claimKey);}
+                catch (RuntimeException e){
+                    throw new IllegalArgumentException("Claim Key is incorrect: {}" + claimKey);
+                }
+    }
+
+    public boolean isTokenExpired(String token){
+        // TODO-- Check if this is a dangerous casting
+        Date tokenExpirationDate = (Date) this.extractClaimByKey(token , "iat");
+        return tokenExpirationDate.before(new Date()); // return true if expired
+    }
+
+
+    public boolean isTokenValid(String token , String expected_username){
+        //  expected_username > Username from the DB
+        final String tokenUsername = this.extractTokenUserName(token);
+        return !this.isTokenExpired(token) && tokenUsername.matches(expected_username);
+    }
+
+    public String extractTokenUserName(String accessToken)
+    {
+        return this.extractAllClaims(accessToken).getSubject();
+    }
+
+
+
+
+
+
+}
