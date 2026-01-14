@@ -6,13 +6,15 @@ import com.anascoding.auth_system.dto.response.EmailAuthResponse;
 import com.anascoding.auth_system.entity.AppAuthProvider;
 import com.anascoding.auth_system.entity.AppUser;
 import com.anascoding.auth_system.entity.Role;
-import com.anascoding.auth_system.jwt.JwtUtils;
+import com.anascoding.auth_system.security.jwt.JwtUtils;
 import com.anascoding.auth_system.repository.AppUserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,19 +30,25 @@ public class EmailAuthenticationService {
         // check if user is already exist or not
         // if exist > validate username and password
         // if not exist > register + send verification email
-        AppUser userFromDb = appUserRepo
-                .findByEmail(request.email())
-                .orElseGet(() -> this.registerNewUser(request));
-
+        Optional<AppUser> userFromDb = appUserRepo
+                .findByEmail(request.email());
+        if(userFromDb.isEmpty()){
+            AppUser newUser = registerNewUser(request);
+            this.verificationService.sendVerificationEmail(request.email());
+            throw new RuntimeException("Verify Your Email First");
+        }
+        // need to convert optional user to AppUser
+        AppUser user = userFromDb.get();
         // try to authenticate User
-        // if succeeded > issue a refresh / access tokens
+        // if succeeded > issue a refresh / access tokens else we verify email and generate token
         authenticateUser(request);
 
         // Check if email is verified (Some users add email and password and wait till email verification)
-        if(!userFromDb.isEmailVerified()){
-            this.verificationService.sendVerificationEmail(userFromDb.getEmail());
+        if(!user.isEmailVerified()){
+            this.verificationService.sendVerificationEmail(user.getEmail());
         }
-        return generateAccessToken(userFromDb);
+
+        return generateAccessToken(user);
     }
 
     private EmailAuthResponse generateAccessToken(AppUser userFromDb) {
@@ -56,7 +64,7 @@ public class EmailAuthenticationService {
 
     private Role chooseRole(String role){
         // customer > is the one who offers jobs to workers
-        // worker is like electrecian
+        // worker is like electrician, plumber
       return role.matches("Customer") ? Role.CUSTOMER : Role.WORKER;
     }
 

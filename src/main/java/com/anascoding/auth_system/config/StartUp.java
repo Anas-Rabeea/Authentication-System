@@ -9,6 +9,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StartUp implements CommandLineRunner {
@@ -40,7 +42,9 @@ public class StartUp implements CommandLineRunner {
                             .emailVerified(true)
                             .build();
 
+            this.appUserRepo.saveAll(List.of(appUserAdmin, appUserDeveloper));
         }
+
 
 
 

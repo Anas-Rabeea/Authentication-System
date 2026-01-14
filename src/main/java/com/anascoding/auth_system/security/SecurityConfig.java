@@ -41,9 +41,9 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/v1/auth/**").permitAll()
                                 .anyRequest().authenticated())
-                .oauth2Client(Customizer.withDefaults())
+//                .oauth2Client(Customizer.withDefaults())
                 .userDetailsService(customUserDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 ;
@@ -72,8 +72,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider  authenticationProvider(
-            )
+    public AuthenticationProvider  authenticationProvider()
     {
         // our custom
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
@@ -84,6 +83,8 @@ public class SecurityConfig {
 //    Email + Password
 //      ↓
 //    AuthenticationManager
+//      ↓
+//   AuthenticationProvider
 //      ↓
 //    UserDetailsService (find by email)
 //      ↓

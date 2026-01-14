@@ -1,4 +1,4 @@
-package com.anascoding.auth_system.jwt;
+package com.anascoding.auth_system.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+
+import static com.anascoding.auth_system.security.jwt.TokenType.ACCESS_TOKEN;
+import static com.anascoding.auth_system.security.jwt.TokenType.REFRESH_TOKEN;
 
 @Component
 public class JwtUtils {
@@ -41,7 +44,7 @@ public class JwtUtils {
     {
         return this.buildToken(
                 username,
-                TokenType.ACCESS_TOKEN ,
+                ACCESS_TOKEN ,
                 jwtProperties.getAccessTokenExpiration());
     }
 
@@ -49,7 +52,7 @@ public class JwtUtils {
     {
         return this.buildToken(
                 username,
-                TokenType.REFRESH_TOKEN ,
+                REFRESH_TOKEN ,
                 jwtProperties.getRefreshTokenExpiration());
     }
 
@@ -69,17 +72,26 @@ public class JwtUtils {
         }
     }
 
-    public Object extractClaimByKey(String token , String claimKey){
+//    public Object extractClaimByKey(String token , String claimKey){
+//
+//                try { return this.extractAllClaims(token).get(claimKey);}
+//                catch (RuntimeException e){
+//                    throw new IllegalArgumentException("Claim Key is incorrect: " + claimKey);
+//                }
+//    }
 
-                try { return this.extractAllClaims(token).get(claimKey);}
-                catch (RuntimeException e){
-                    throw new IllegalArgumentException("Claim Key is incorrect: {}" + claimKey);
-                }
+    public Object extractClaimByKey(String token, String claimKey) {
+        Claims claims = extractAllClaims(token);
+
+        if (!claims.containsKey(claimKey)) {
+            throw new IllegalArgumentException("Claim key not found: " + claimKey);
+        }
+        return claims.get(claimKey);
     }
 
     public boolean isTokenExpired(String token){
-        // TODO-- Check if this is a dangerous casting
-        Date tokenExpirationDate = (Date) this.extractClaimByKey(token , "iat");
+
+        Date tokenExpirationDate = (Date) this.extractClaimByKey(token ,Claims.EXPIRATION );
         return tokenExpirationDate.before(new Date()); // return true if expired
     }
 

@@ -5,7 +5,6 @@ import com.anascoding.auth_system.repository.AppUserRepo;
 import com.anascoding.auth_system.service.abstraction.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -79,4 +78,5 @@ public class EmailVerificationService {
         this.userRepo.save(user); // to update the new registered user email verification state
         redisTemplate.delete(redisKey);
     }
+
 }

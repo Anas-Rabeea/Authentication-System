@@ -1,4 +1,4 @@
-package com.anascoding.auth_system.jwt;
+package com.anascoding.auth_system.security.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

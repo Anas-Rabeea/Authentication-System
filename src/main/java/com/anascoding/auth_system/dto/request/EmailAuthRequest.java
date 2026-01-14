@@ -1,5 +1,6 @@
 package com.anascoding.auth_system.dto.request;
 
+import com.anascoding.auth_system.entity.Role;
 import com.anascoding.auth_system.validator.NonDisposalEmail.NonDisposalEmail;
 import com.anascoding.auth_system.validator.StrongPassword.StrongPassword;
 import jakarta.persistence.EnumType;
@@ -13,13 +14,17 @@ import lombok.Builder;
 @Builder
 public record EmailAuthRequest(
 
-        @Email @NotBlank
+        @Email(message = "Enter a valid email address.")
+        @NotBlank(message = "Email cant be empty.")
         @NonDisposalEmail
         String email,
 
-        @Min(10) @Max(100)
-        @NotBlank @StrongPassword
+        //@Min(value = 10, message = "Password Should be at least 10")
+        //@Max(value = 100, message = "Password Should be at most 100")
+        @NotBlank(message = "Password cant be empty.")
+        //@StrongPassword
         String password,
+
         @Enumerated(EnumType.STRING)
         String role
 ) {
