@@ -14,6 +14,5 @@ public class EmailVerificationService {
     public void sendVerificationEmail(@Email @NotBlank String email) {
 
 
-
     }
 }
