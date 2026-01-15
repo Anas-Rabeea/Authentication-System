@@ -3,6 +3,7 @@ package com.anascoding.auth_system.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -12,8 +13,10 @@ public class RedisConfig {
 
 
     @Bean
-    LettuceConnectionFactory connectionFactory() {
-        return new LettuceConnectionFactory();
+    public RedisConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration config =
+                new RedisStandaloneConfiguration("localhost", 8099);
+        return new LettuceConnectionFactory(config);
     }
 
     @Bean // Token:<token> , email

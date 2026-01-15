@@ -91,7 +91,7 @@ public class JwtUtils {
 
     public boolean isTokenExpired(String token){
 
-        Date tokenExpirationDate = (Date) this.extractClaimByKey(token ,Claims.EXPIRATION );
+        Date tokenExpirationDate = this.extractAllClaims(token).getExpiration() ;
         return tokenExpirationDate.before(new Date()); // return true if expired
     }
 

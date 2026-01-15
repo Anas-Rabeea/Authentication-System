@@ -1,4 +1,4 @@
-package com.anascoding.auth_system.service;
+package com.anascoding.auth_system.service.email;
 
 import com.anascoding.auth_system.entity.AppUser;
 import com.anascoding.auth_system.repository.AppUserRepo;
@@ -10,13 +10,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailVerificationService {
-
-    // TODO -- set isEmailVerified to true after verification is completed
 
     // Key = token , Value = email
     // because user can send 2 verifications in a short period of time
@@ -47,14 +46,14 @@ public class EmailVerificationService {
                     %s
                     NOTE: This link expires in 3 minutes.
                     If you did not make this request, please disregard this email.
-                """.formatted(email,verificationLink) ;
-        String verificationEmailTitle = "Your Verification Code For Mehna";
-        this.emailSenderService.send(
+                """.formatted(email.substring( 0 , email.indexOf("@") ) , verificationLink) ;
+        String verificationEmailTitle = "Your Verification Link For Mehna";
+        emailSenderService.send(
                 email,
                 verificationEmailContent,
                 verificationEmailTitle
         );
-        log.info("Sent email verification to" + email);
+
 
     }
 
@@ -74,7 +73,7 @@ public class EmailVerificationService {
                             .findByEmail(email)
                             .orElseThrow(() -> new UsernameNotFoundException("Email not found."));
         user.setEmailVerified(true);
-        log.info("%s is verified." + email);
+        log.info( email + " is verified at " + LocalDateTime.now());
         this.userRepo.save(user); // to update the new registered user email verification state
         redisTemplate.delete(redisKey);
     }

@@ -1,4 +1,4 @@
-package com.anascoding.auth_system.service;
+package com.anascoding.auth_system.service.email;
 
 
 import com.anascoding.auth_system.dto.request.EmailAuthRequest;
@@ -36,7 +36,6 @@ public class EmailAuthenticationService {
         if(userFromDb.isEmpty()){
             AppUser newUser = registerNewUser(request);
             this.verificationService.sendVerificationEmail(request.email());
-            throw new RuntimeException("Verify Your Email First");
         }
         // need to convert optional user to AppUser
         AppUser user = userFromDb.get();
@@ -44,7 +43,6 @@ public class EmailAuthenticationService {
         // Check if email is verified (Some users add email and password and wait till email verification)
         if(!user.isEmailVerified()){
             this.verificationService.sendVerificationEmail(user.getEmail());
-            throw new RuntimeException("Verify your email first");
         }
 
         // try to authenticate User

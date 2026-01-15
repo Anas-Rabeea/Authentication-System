@@ -20,7 +20,7 @@ public record EmailAuthRequest(
 
         @NotBlank(message = "Password cant be empty.")
         @Size(min = 10,max = 100 , message = "Password length must be between 11 and 99")
-        @StrongPassword
+        //@StrongPassword
         String password,
 
         @Enumerated(EnumType.STRING)

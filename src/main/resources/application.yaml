@@ -1,4 +1,23 @@
 spring:
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    default-encoding: UTF-8
+    username: ${gmail_username}
+    password: ${gmail_password}
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  #          ssl: # port = 465
+  #            trust: smtp.gmail.com
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/mehna
     username: root
@@ -15,24 +34,12 @@ spring:
 
   data:
     redis:
+      database: 0
       host: localhost
       port: 8099
       repositories:
         enabled: false
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${gmail_username}
-    password: ${gmail_password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          ssl:
-            trust: smtp.gmail.com
+
 
 
   cache:

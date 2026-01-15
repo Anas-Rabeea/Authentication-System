@@ -2,7 +2,7 @@ package com.anascoding.auth_system.controller;
 
 
 import com.anascoding.auth_system.dto.request.EmailAuthRequest;
-import com.anascoding.auth_system.service.EmailAuthenticationService;
+import com.anascoding.auth_system.service.email.EmailAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,11 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final EmailAuthenticationService emailAuthService;
+    private final PhoneVerificationService phoneAuthService;
 
     @PostMapping("/email")
     // one endpoint handles login/signup for using emails
     // EmailAuthResponse
     public ResponseEntity<?> emailAuthentication(
+            @RequestBody @Valid
+            EmailAuthRequest request)
+    {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(emailAuthService.authenticate(request));
+    }
+
+    @PostMapping("/phone")
+    // one endpoint handles login/signup for using emails
+    // EmailAuthResponse
+    public ResponseEntity<?> phoneAuthentication(
             @RequestBody @Valid
             EmailAuthRequest request)
     {

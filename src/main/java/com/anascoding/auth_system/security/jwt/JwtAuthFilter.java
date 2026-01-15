@@ -5,7 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,14 +29,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 //        }
 
     private boolean isAccessToken(String extractedToken){
-
-        var claim = jwtUtils.extractClaimByKey(extractedToken , "type");
-
-        if(claim == null)
+        try {
+            Object claim = jwtUtils.extractClaimByKey(extractedToken, "type");
+            return TokenType.ACCESS_TOKEN.name().equals(String.valueOf(claim));
+        } catch (Exception e) {
             return false;
-
-        return TokenType.ACCESS_TOKEN.name().equals(claim.toString());
-
+        }
     }
 
     @Override
@@ -45,61 +45,42 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     {
 
         // TODO -- what if the user is already authenticated and go to this endpoint > redirect to /feed
-        String path = request.getRequestURI();
-        // no JWT Validation for this endpoint (Extra step plus the configs in the SecurityConfig Matchers
-        if (path.startsWith("/api/v1/auth")) {
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if(authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")){
+            filterChain.doFilter(request,response);
+            return;
+        }
+        String extractedToken = authorizationHeader.substring(7);
+
+        // check if the token is an access token
+        if (!isAccessToken(extractedToken)) {
             filterChain.doFilter(request, response);
             return;
         }
+        String tokenUserName ;
+        try{
+            tokenUserName = this.jwtUtils.extractTokenUserName(extractedToken);
+        } catch (Exception e) {
+            filterChain.doFilter(request,response);
+            return;
+        }
+        // check if user is not already authenticated
+        if(SecurityContextHolder.getContext().getAuthentication() == null &&
+            tokenUserName != null)
+        {
+            UserDetails user =
+                    this.userDetailsService.loadUserByUsername(tokenUserName);
+            if(this.jwtUtils.isTokenValid(extractedToken,user.getUsername()))
+            {
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                user.getAuthorities()
+                        );
 
-
-        if(request.getHeader("Authorization") !=null) {
-            // we will use users email as the token username
-            String extractedToken = request.getHeader("Authorization");
-
-            // check if this a Bearer token
-            if (extractedToken.startsWith("Bearer ")) {
-                extractedToken = extractedToken.substring(7);
-            } else {
-                // go to the next filter
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // check if the token is an access token
-            if (!isAccessToken(extractedToken)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            String tokenUsername = jwtUtils.extractTokenUserName(extractedToken);
-
-            // check if user is not already authenticated
-            if ( SecurityContextHolder.getContext().getAuthentication() == null
-                    && tokenUsername != null) {
-                // if user is not authenticated , then
-                // we validate the subject of the token and see if it is a valid token or not
-
-                // Actual Existing User
-                UserDetails expectedUser = userDetailsService.loadUserByUsername(tokenUsername);
-
-                // check if users are matched = user in the DB
-                // and also if the token is a valid = not expired + sign key is right
-                if (jwtUtils.isTokenValid(extractedToken, expectedUser.getUsername())) {
-                    // set this username in the token as authenticated in the SecurityContextHolder
-                    // via the Authentication Token
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    // SecurityContext principal = email
-                                    expectedUser.getUsername(),
-                                    null,
-                                    expectedUser.getAuthorities());
-                    authenticationToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    // set user in the current SecurityContextHolder = this user is currently authenticated
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
         filterChain.doFilter(request,response);

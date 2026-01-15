@@ -1,4 +1,4 @@
-package com.anascoding.auth_system.service;
+package com.anascoding.auth_system.service.email;
 
 
 import org.springframework.stereotype.Service;
@@ -9,7 +9,7 @@ import java.util.Random;
 @Service
 public class VerificationTokenService {
 
-    private static final String CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:'\",.<>?/";
+    private static final String CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     public String generateEmailVerificationToken(int tokenLength)
     {

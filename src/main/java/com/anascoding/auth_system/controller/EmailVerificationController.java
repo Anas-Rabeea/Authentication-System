@@ -1,6 +1,6 @@
 package com.anascoding.auth_system.controller;
 
-import com.anascoding.auth_system.service.EmailVerificationService;
+import com.anascoding.auth_system.service.email.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
