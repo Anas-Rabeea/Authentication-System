@@ -29,13 +29,11 @@ public class OtpServiceImpl implements OtpService {
     public void sendPhoneVerificationOtp(String phone)
     {
         String otp = this.generateOTP(7);
+        // otp:Token:1234567  > Example of what will be saved in Redis
+        // key = otp:Token:<OTP> , value = phone
         redisTemplate
                .opsForValue()
-                // otp:Token_@#:1234567  > Example of what will be saved in Redis
-                // key = otp:Token_@#:
-                // value
-               .set("otp:Token_@#:%s".formatted(otp) , phone , OTP_TTL );
-
+               .set("otp:Token:%s".formatted(otp) , phone , OTP_TTL );
         this.smsService.sendOtp(phone , otp);
     }
 
@@ -43,7 +41,7 @@ public class OtpServiceImpl implements OtpService {
 
     public boolean verifyOtp(String otp)
     {
-        String redisKey = "otp:Token_@#:%s".formatted(otp);
+        String redisKey = "otp:Token:%s".formatted(otp);
         String phone = redisTemplate
                             .opsForValue()
                             .get(redisKey);
