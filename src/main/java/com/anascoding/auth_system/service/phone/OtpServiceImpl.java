@@ -39,14 +39,17 @@ public class OtpServiceImpl implements OtpService {
 
 
 
-    public boolean verifyOtp(String otp)
+    public boolean verifyOtp(String otp , String incomingPhone)
     {
+        if(otp.isBlank())
+            return false;
+
         String redisKey = "otp:Token:%s".formatted(otp);
         String phone = redisTemplate
                             .opsForValue()
                             .get(redisKey);
         // if OTP is wrong redis will not return a value which means phone will be null
-        if(phone == null)
+        if(phone == null || !phone.matches(incomingPhone))
             return false;
 
         // if reached this > means that phone is not null a
@@ -55,8 +58,10 @@ public class OtpServiceImpl implements OtpService {
                             .findByPhone(phone)
                             .orElseThrow(() -> new UsernameNotFoundException("Invalid Phone Number."));
 
+        // TODO -- after user send correct OTP phoneVerified stays false in the DB ,  check why
         verifiedUser.setPhoneVerified(true);
         this.appUserRepo.save(verifiedUser);
+
         log.info("{} : Phone is verified." , phone);
         redisTemplate.delete(redisKey);
 

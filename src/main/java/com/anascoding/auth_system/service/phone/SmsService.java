@@ -21,12 +21,13 @@ public class SmsService {
                 twilioProperties.getTWILIO_ACCOUNT_SID(),
                 twilioProperties.getTWILIO_AUTH_TOKEN());
 
-        String to =  "+2" + phoneNumber;
+//        String to =  "+2" + phoneNumber;
+        String to =  phoneNumber;
         Message.creator(
                 new com.twilio.type.PhoneNumber(to), // to
                 new com.twilio.type.PhoneNumber(twilioProperties.getTWILIO_PHONE_NUMBER()), // from (Twilio)
                 """
-                        %s   is your OTP verification for Mehna.
+                        %s   is your OTP for Mehna.
                         Don't Share this code with anyone.
                         """.formatted(otp)
         ).create();

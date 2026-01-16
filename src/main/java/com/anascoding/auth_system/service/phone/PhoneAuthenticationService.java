@@ -59,7 +59,7 @@ public class PhoneAuthenticationService {
                 AppUser
                         .builder()
                         .phone(request.phone())
-                        .appAuthProvider(AppAuthProvider.LOCAL)
+                        .appAuthProvider(AppAuthProvider.PHONE)
                         .phoneVerified(false)
                         .role(this.chooseRole(request.role()))
                         .build();

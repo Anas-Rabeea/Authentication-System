@@ -3,6 +3,7 @@ package com.anascoding.auth_system.controller;
 
 import com.anascoding.auth_system.dto.request.EmailAuthRequest;
 import com.anascoding.auth_system.dto.request.PhoneAuthRequest;
+import com.anascoding.auth_system.dto.request.PhoneVerificationRequest;
 import com.anascoding.auth_system.service.email.EmailAuthenticationService;
 import com.anascoding.auth_system.service.email.EmailVerificationService;
 import com.anascoding.auth_system.service.phone.OtpServiceImpl;
@@ -62,9 +63,12 @@ public class AuthenticationController {
 
 
     @PostMapping("/verify-phone")
-    public ResponseEntity<String> verifyPhone(@RequestParam String otp){
-        this.otpServiceImpl.verifyOtp(otp);
-        return ResponseEntity.ok("Phone Verification is completed");
+    public ResponseEntity<String> verifyPhone(
+            @RequestBody @Valid
+            PhoneVerificationRequest request
+    ){
+        this.otpServiceImpl.verifyOtp(request.otp() , request.phone());
+        return ResponseEntity.ok("Phone Verification is completed , Now you can login using your phone number");
     }
 
 
