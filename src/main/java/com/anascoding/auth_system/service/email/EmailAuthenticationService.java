@@ -60,7 +60,6 @@ public class EmailAuthenticationService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
-
     }
 
     private Role chooseRole(String role){
@@ -83,6 +82,8 @@ public class EmailAuthenticationService {
     }
 
     private void authenticateUser(EmailAuthRequest request) {
+
+
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(
                         request.email(),

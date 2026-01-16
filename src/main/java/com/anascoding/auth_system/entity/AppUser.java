@@ -58,9 +58,13 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        if(!appAuthProvider.equals(LOCAL))
-            return true; // doesn't matter for oatuh2
-        return emailVerified ;
+        return
+                switch (appAuthProvider)
+                {
+                    case LOCAL -> isEmailVerified();
+                    case PHONE -> isPhoneVerified();
+                    default -> true; // OAuth2 (GOogle or faceBook)
+                } ;
     }
 
     @Override

@@ -31,8 +31,8 @@ public class EmailVerificationService {
     public void sendVerificationEmail(String email) {
 
         String token =  verificationTokenService.generateEmailVerificationToken(10);
-        // Token_2RI#@L : To not make token guessing easy (prevents brute-force)
-        String redisKey = "Token_2RI#@L:" + token;
+        // Token_2RI#@L : To not make token guessing easy
+        String redisKey = "email-verification:Token_2RI#@L:" + token;
         // save  the token with email in redis
         redisTemplate
                 .opsForValue()
@@ -61,7 +61,7 @@ public class EmailVerificationService {
     // from the link the user clicked on it his mail
     public void verifyEmail(String token){
 
-        String redisKey = "Token_2RI#@L:" + token;
+        String redisKey = "email-verification:Token_2RI#@L:" + token;
         String email = redisTemplate
                             .opsForValue()
                             .get(redisKey);
