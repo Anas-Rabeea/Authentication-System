@@ -1,6 +1,7 @@
 package com.anascoding.auth_system.security;
 
 import com.anascoding.auth_system.security.jwt.JwtAuthFilter;
+import com.anascoding.auth_system.service.oauth.OAuth2SuccessHandlerImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,7 @@ public class SecurityConfig {
 
         private final JwtAuthFilter jwtAuthFilter;
         private final CustomUserDetailsService customUserDetailsService;
-
+        private final OAuth2SuccessHandlerImpl oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception{
@@ -41,7 +42,8 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated())
-//                .oauth2Client(Customizer.withDefaults())
+                .oauth2Login( auth ->
+                        auth.successHandler(oAuth2SuccessHandler))
                 .userDetailsService(customUserDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 ;
