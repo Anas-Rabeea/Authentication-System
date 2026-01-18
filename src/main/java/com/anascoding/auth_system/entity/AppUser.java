@@ -96,6 +96,7 @@ public class AppUser implements UserDetails {
 
     @Override
     public String getUsername() {
+
         return this.email;
     }
 }
