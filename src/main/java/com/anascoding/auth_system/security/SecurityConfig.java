@@ -78,18 +78,4 @@ public class SecurityConfig {
         return authProvider;
     }
 
-//    Email + Password
-//      ↓
-//    AuthenticationManager
-//      ↓
-//   AuthenticationProvider
-//      ↓
-//    UserDetailsService (find by email)
-//      ↓
-//    BCrypt check
-//      ↓
-//    Authenticated
-
-
-
 }

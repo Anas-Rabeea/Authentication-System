@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,8 +21,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-
-import static com.anascoding.auth_system.entity.AppAuthProvider.LOCAL;
 
 @Entity
 @Table(name = "app-user")
@@ -33,8 +32,12 @@ public class AppUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id ;
 
+    @Column(name = "username" , unique = true , nullable = false)
+    @UuidGenerator(style = UuidGenerator.Style.AUTO)
+    private String username;
+
     @Column(name = "email" , nullable = true , unique = true)
-    private String email; // this will bt the username which will be loaded from loadByUserName()
+    private String email;
 
     @Column(name = "phone" , nullable = true , unique = true)
     private String phone;
@@ -45,9 +48,10 @@ public class AppUser implements UserDetails {
     private boolean emailVerified;
     private boolean phoneVerified;
 
-    // for oAuth2
+
     @Enumerated(EnumType.STRING)
     private AppAuthProvider appAuthProvider; // this will be the type of authentication
+    // for oAuth2
     private String providerId; // OAuth ID Like Google or Facebook ID
 
     // Authorization
@@ -61,7 +65,7 @@ public class AppUser implements UserDetails {
         return
                 switch (appAuthProvider)
                 {
-                    case LOCAL -> isEmailVerified();
+                    case EMAIL -> isEmailVerified();
                     case PHONE -> isPhoneVerified();
                     default -> true; // OAuth2 (GOogle or faceBook)
                 } ;
@@ -82,8 +86,6 @@ public class AppUser implements UserDetails {
         return true;
     }
 
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name() ));
@@ -98,6 +100,6 @@ public class AppUser implements UserDetails {
     @Override
     public String getUsername() {
 
-        return this.email;
+        return this.username;
     }
 }

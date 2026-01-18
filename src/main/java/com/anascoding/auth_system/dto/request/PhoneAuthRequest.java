@@ -10,7 +10,7 @@ import lombok.Builder;
 public record PhoneAuthRequest(
 
         @NotBlank
-        //@ValidEgyptianPhone
+        @ValidEgyptianPhone
         String phone,
 
         @Enumerated(EnumType.STRING)

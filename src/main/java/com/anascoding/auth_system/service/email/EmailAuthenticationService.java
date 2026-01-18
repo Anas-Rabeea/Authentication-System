@@ -41,14 +41,14 @@ public class EmailAuthenticationService {
             this.verificationService.sendVerificationEmail(user.getEmail());
         }
 
-        authenticateUser(request);
+        authenticateUser(user);
 
         return generateAccessToken(user);
     }
 
     private EmailAuthResponse generateAccessToken(AppUser userFromDb) {
-        final String accessToken = this.jwtUtils.generateAccessToken(userFromDb.getEmail());
-        final String refreshToken = this.jwtUtils.generateRefreshToken(userFromDb.getEmail());
+        final String accessToken = this.jwtUtils.generateAccessToken(userFromDb.getUsername());
+        final String refreshToken = this.jwtUtils.generateRefreshToken(userFromDb.getUsername());
 
         return EmailAuthResponse.builder()
                 .accessToken(accessToken)
@@ -67,20 +67,20 @@ public class EmailAuthenticationService {
                         .builder()
                         .email(request.email())
                         .password(passwordEncoder.encode( request.password()) )
-                        .appAuthProvider(AppAuthProvider.LOCAL)
+                        .appAuthProvider(AppAuthProvider.EMAIL)
                         .emailVerified(false)
                         .role(this.chooseRole(request.role()))
                         .build();
         return appUserRepo.save(newAppUser);
     }
 
-    private void authenticateUser(EmailAuthRequest request) {
+    private void authenticateUser(AppUser user) {
 
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
+                        user.getUsername(),
+                        user.getPassword()
                 ) ;
         authManager.authenticate(authToken);
     }

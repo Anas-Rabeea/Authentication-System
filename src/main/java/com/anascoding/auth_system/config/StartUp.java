@@ -29,7 +29,7 @@ public class StartUp implements CommandLineRunner {
                         .email("developer-backend@mehna.com")
                         .password(passwordEncoder.encode("P#@!sswor$#!!99"))
                         .role(Role.DEVELOPER)
-                        .appAuthProvider(AppAuthProvider.LOCAL)
+                        .appAuthProvider(AppAuthProvider.EMAIL)
                         .emailVerified(true)
                         .build();
             AppUser appUserAdmin =
@@ -38,7 +38,7 @@ public class StartUp implements CommandLineRunner {
                             .email("admin-backend@mehna.com")
                             .password(passwordEncoder.encode("P#@!sswor$#!!99"))
                             .role(Role.ADMIN)
-                            .appAuthProvider(AppAuthProvider.LOCAL)
+                            .appAuthProvider(AppAuthProvider.EMAIL)
                             .emailVerified(true)
                             .build();
 

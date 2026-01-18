@@ -33,6 +33,7 @@ public class PhoneAuthenticationService {
                 this.otpServiceImpl.sendPhoneVerificationOtp(request.phone());
             }
 
+            // TODO-- Handle this exception to not return 500 Internal Server Error
             AppUser user = userFromDb.get();
 
             // Check if email is verified (Some users add email and password and wait till email verification)
@@ -51,7 +52,7 @@ public class PhoneAuthenticationService {
         final AppUser newAppUser =
                 AppUser
                         .builder()
-                        .phone("+2" + request.phone())
+                        .phone(request.phone())
                         .appAuthProvider(AppAuthProvider.PHONE)
                         .phoneVerified(false)
                         .role(this.chooseRole(request.role()))
@@ -60,8 +61,8 @@ public class PhoneAuthenticationService {
     }
 
     private PhoneAuthResponse generateAccessToken(AppUser userFromDb) {
-        final String accessToken = this.jwtUtils.generateAccessToken(userFromDb.getPhone());
-        final String refreshToken = this.jwtUtils.generateRefreshToken(userFromDb.getPhone());
+        final String accessToken = this.jwtUtils.generateAccessToken(userFromDb.getUsername());
+        final String refreshToken = this.jwtUtils.generateRefreshToken(userFromDb.getUsername());
 
         return PhoneAuthResponse.builder()
                 .accessToken(accessToken)

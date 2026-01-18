@@ -24,10 +24,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         private final JwtUtils jwtUtils;
         private final UserDetailsService userDetailsService;
 
-//        private boolean isUserNamesMatched(String expectedUserName , String tokenUserName){
-//            return expectedUserName.matches(tokenUserName);
-//        }
-
     private boolean isAccessToken(String extractedToken){
         try {
             Object claim = jwtUtils.extractClaimByKey(extractedToken, "type");

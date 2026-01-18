@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record PhoneVerificationRequest (
 
-        //@ValidEgyptianPhone(message = "Enter a Valid Egyptian Number")
+        @ValidEgyptianPhone(message = "Enter a Valid Egyptian Number")
         @NotBlank(message = "Must Enter a Phone")
         String phone,
 

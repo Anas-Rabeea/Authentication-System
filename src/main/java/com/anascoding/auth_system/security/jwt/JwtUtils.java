@@ -72,14 +72,6 @@ public class JwtUtils {
         }
     }
 
-//    public Object extractClaimByKey(String token , String claimKey){
-//
-//                try { return this.extractAllClaims(token).get(claimKey);}
-//                catch (RuntimeException e){
-//                    throw new IllegalArgumentException("Claim Key is incorrect: " + claimKey);
-//                }
-//    }
-
     public Object extractClaimByKey(String token, String claimKey) {
         Claims claims = extractAllClaims(token);
 

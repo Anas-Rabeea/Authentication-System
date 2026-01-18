@@ -14,6 +14,7 @@ public interface AppUserRepo extends JpaRepository<AppUser,String> {
 
     Optional<AppUser> findByEmail(String email);
     Optional<AppUser> findByPhone(String phone);
+    Optional<AppUser> findByUsername(String username);
 
     boolean existsByEmailVerified(boolean emailVerified);
     boolean existsByPhoneVerified(boolean phoneVerified);
@@ -26,4 +27,6 @@ public interface AppUserRepo extends JpaRepository<AppUser,String> {
     @Query(nativeQuery = true , value = "SELECT COUNT(id) as count FROM `app-user` ")
     long count();
 
+    long countByEmailVerified(boolean emailVerified);
+    long countByPhoneVerified(boolean phoneVerified);
 }
