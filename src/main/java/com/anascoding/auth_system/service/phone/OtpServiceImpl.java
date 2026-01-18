@@ -25,31 +25,34 @@ public class OtpServiceImpl implements OtpService {
 
     private static final String CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final Duration OTP_TTL = Duration.ofMinutes(2);
+
+
     @Override
     public void sendPhoneVerificationOtp(String phone)
     {
         String otp = this.generateOTP(7);
-        // otp:Token:1234567  > Example of what will be saved in Redis
-        // key = otp:Token:<OTP> , value = phone
+        // key = otp:phone:<Phone>
+        // value = <Otp>
         redisTemplate
                .opsForValue()
-               .set("otp:Token:%s".formatted(otp) , phone , OTP_TTL );
+               .set("otp:phone:%s".formatted(phone) , otp , OTP_TTL );
         this.smsService.sendOtp(phone , otp);
     }
 
 
 
-    public boolean verifyOtp(String otp , String incomingPhone)
+    public boolean verifyOtp(String otp , String phone)
     {
         if(otp.isBlank())
             return false;
 
-        String redisKey = "otp:Token:%s".formatted(otp);
-        String phone = redisTemplate
+        String redisKey = "otp:phone:%s".formatted(phone);
+        String storedOtp = redisTemplate
                             .opsForValue()
                             .get(redisKey);
+
         // if OTP is wrong redis will not return a value which means phone will be null
-        if(phone == null || !phone.matches(incomingPhone))
+        if(storedOtp == null || !storedOtp.matches(otp))
             return false;
 
         // if reached this > means that phone is not null a
