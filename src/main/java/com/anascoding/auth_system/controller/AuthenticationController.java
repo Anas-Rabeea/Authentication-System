@@ -81,6 +81,7 @@ public class AuthenticationController {
 
     @GetMapping("/google")
     public void googleAuthentication(HttpServletResponse response) throws IOException {
+        // redirect user to Google Auth
         response.sendRedirect("/oauth2/authorization/google");
     }
 

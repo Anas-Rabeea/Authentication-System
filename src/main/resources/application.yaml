@@ -4,6 +4,8 @@ spring:
       client:
         registration:
           google:
+            # google oAuth2 (GOOGLE_CLIENT_ID / SECRET)
+            # gmail SMTP (gmail username / password)
             client-id: ${GOOGLE_CLIENT_ID} # Our User Google ID
             client-secret: ${GOOGLE_CLIENT_SECRET} # Secret Google give us to register the client (our app) to google ?
             redirect-uri: "http://localhost:8055/api/v1/auth-test/greeting"

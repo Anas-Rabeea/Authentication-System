@@ -28,6 +28,7 @@ public class OAuth2SuccessHandlerImpl extends SimpleUrlAuthenticationSuccessHand
     private final JwtUtils jwtUtils;
 
     // App > Auth Provider > Jwt
+    // App > Google/Facebook > OAuth2ServiceImpl > OAuth2SuccessHandlerImpl > Jwt
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
@@ -35,27 +36,12 @@ public class OAuth2SuccessHandlerImpl extends SimpleUrlAuthenticationSuccessHand
             Authentication authentication)
             throws IOException, ServletException
     {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        final String authProvider =
-                ((OAuth2AuthenticationToken) authentication)
-                                .getAuthorizedClientRegistrationId()
-                                .toUpperCase();
-        final String providerId = this.extractProviderId(authProvider , oAuth2User);
+        final OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        assert oAuth2User != null;
+        final AppUser user = (AppUser) oAuth2User.getAttribute("AppUser");
 
-        final String oauthEmail =
-                oAuth2User.getAttribute("email");
 
-        AppUser user =
-                appUserRepo
-                        .findByAppAuthProviderAndProviderId(
-                            AppAuthProvider.valueOf(authProvider.toUpperCase()),
-                            providerId)
-                        .orElseGet(() ->
-                                this.registerNewOAuth2User(
-                                        AppAuthProvider.valueOf(authProvider.toUpperCase()),
-                                        providerId,
-                                        oauthEmail));
-
+        assert user != null;
         final String  jwtSubject = user.getUsername();
         String accessToken = this.jwtUtils.generateAccessToken(jwtSubject);
         String refreshToken = this.jwtUtils.generateAccessToken(jwtSubject);
@@ -67,32 +53,6 @@ public class OAuth2SuccessHandlerImpl extends SimpleUrlAuthenticationSuccessHand
                 String.valueOf(Map.of(
                         "accessToken" , accessToken ,
                         "refreshToken",refreshToken)));
-    }
-
-    private AppUser registerNewOAuth2User(
-            AppAuthProvider appAuthProvider,
-            String providerId,
-            String oauthEmail)
-    {
-        return AppUser
-                .builder()
-                .email(oauthEmail)
-                .emailVerified(true) // oatuh2 users are verified/legit users
-                .providerId(providerId)
-                .appAuthProvider(appAuthProvider)
-                .role(Role.CUSTOMER) // TODO -- refactor this to accept the role from the request
-                .build();
-    }
-
-    private String extractProviderId(
-            String authProvider,
-            OAuth2User oAuth2User)
-    {
-        return switch (authProvider) {
-            case "GOOGLE" -> oAuth2User.getAttribute("sub");
-            case "FACEBOOK" -> oAuth2User.getAttribute("id");
-            default -> throw new IllegalArgumentException("Unknown Authentication Provider. Must be (FACEBOOK , GOOGLE)");
-        };
     }
 
 }

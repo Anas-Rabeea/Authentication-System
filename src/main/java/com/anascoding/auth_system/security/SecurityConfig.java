@@ -2,6 +2,7 @@ package com.anascoding.auth_system.security;
 
 import com.anascoding.auth_system.security.jwt.JwtAuthFilter;
 import com.anascoding.auth_system.service.oauth.OAuth2SuccessHandlerImpl;
+import com.anascoding.auth_system.service.oauth.OAuth2UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ public class SecurityConfig {
         private final JwtAuthFilter jwtAuthFilter;
         private final CustomUserDetailsService customUserDetailsService;
         private final OAuth2SuccessHandlerImpl oAuth2SuccessHandler;
+        private final OAuth2UserServiceImpl oAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception{
@@ -40,10 +42,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll()
+                                .requestMatchers("/oauth2/authorization/google", "/oauth2/authorization/facebook").permitAll()
+                                .requestMatchers("login/oauth2/**").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated())
-                .oauth2Login( auth ->
-                        auth.successHandler(oAuth2SuccessHandler))
+                .oauth2Login( oauth ->
+                        oauth
+                                .successHandler(oAuth2SuccessHandler)
+                                .userInfoEndpoint(
+                                        (user) -> user.userService(oAuth2UserService) ))
                 .userDetailsService(customUserDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 ;
@@ -58,12 +65,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(
                 BCryptPasswordEncoder.BCryptVersion.$2B, 10);
     }
-
-//    @Bean
-//    public UserDetailsService userDetailsService()
-//    {
-//        return new CustomUserDetailsService();
-//    }
 
     @Bean
     public AuthenticationManager authenticationManager()
