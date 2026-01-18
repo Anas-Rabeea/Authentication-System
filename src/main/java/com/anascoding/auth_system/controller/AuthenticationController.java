@@ -74,6 +74,17 @@ public class AuthenticationController {
 
     }
 
+    @GetMapping("/google")
+    public void googleAuthentication(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/google");
+    }
+
+    @GetMapping("/facebook")
+    public  void facebookAuthentication(HttpServletResponse response) throws IOException{
+        response.sendRedirect("/oauth2/authorization/facebook"); // auto-provided by spring security
+
+    }
+
 
     @GetMapping("/test")
     public ResponseEntity<String> test(){
