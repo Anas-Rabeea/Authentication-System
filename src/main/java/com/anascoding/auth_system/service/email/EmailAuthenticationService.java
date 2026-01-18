@@ -56,10 +56,6 @@ public class EmailAuthenticationService {
                 .build();
     }
 
-    private Role chooseRole(String role){
-
-      return role.matches("Customer") ? Role.CUSTOMER : Role.WORKER;
-    }
 
     private AppUser registerNewUser(EmailAuthRequest request){
         final AppUser newAppUser =
@@ -69,13 +65,12 @@ public class EmailAuthenticationService {
                         .password(passwordEncoder.encode( request.password()) )
                         .appAuthProvider(AppAuthProvider.EMAIL)
                         .emailVerified(false)
-                        .role(this.chooseRole(request.role()))
+                        .role(Role.valueOf(request.role()))
                         .build();
         return appUserRepo.save(newAppUser);
     }
 
     private void authenticateUser(AppUser user) {
-
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(

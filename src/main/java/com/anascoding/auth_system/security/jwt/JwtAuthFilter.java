@@ -24,14 +24,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         private final JwtUtils jwtUtils;
         private final UserDetailsService userDetailsService;
 
-    private boolean isAccessToken(String extractedToken){
-        try {
-            Object claim = jwtUtils.extractClaimByKey(extractedToken, "type");
-            return TokenType.ACCESS_TOKEN.name().equals(String.valueOf(claim));
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -81,4 +73,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request,response);
     }
+
+
+    private boolean isAccessToken(String extractedToken){
+        try
+        {
+            Object claim = jwtUtils.extractClaimByKey(extractedToken, "type");
+            return TokenType.ACCESS_TOKEN.name().equals(String.valueOf(claim));
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+
+
 }

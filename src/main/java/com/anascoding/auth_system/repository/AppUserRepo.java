@@ -21,6 +21,8 @@ public interface AppUserRepo extends JpaRepository<AppUser,String> {
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
 
+//    Optional<AppUser> findByAppAuthProviderAndProviderId(
+//            String appAuthProvider, String providerId);
     Optional<AppUser> findByAppAuthProviderAndProviderId(
             AppAuthProvider appAuthProvider, String providerId);
 

@@ -8,6 +8,7 @@ import com.anascoding.auth_system.service.email.EmailAuthenticationService;
 import com.anascoding.auth_system.service.email.EmailVerificationService;
 import com.anascoding.auth_system.service.phone.OtpServiceImpl;
 import com.anascoding.auth_system.service.phone.PhoneAuthenticationService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class AuthenticationController {
     private final PhoneAuthenticationService phoneAuthService;
     private final EmailVerificationService emailVerificationService;
     private final OtpServiceImpl otpServiceImpl;
+//    private final OAuth2SuccessHandlerImpl oAuth2SuccessHandler;
 
 
 
@@ -68,7 +72,8 @@ public class AuthenticationController {
             PhoneVerificationRequest request
     ){
         if(this.otpServiceImpl.verifyOtp(request.otp() , request.phone()))
-            return ResponseEntity.ok("Your Phone Verification is completed now you can login using this phone number");
+            return ResponseEntity.ok(
+                    "Your Phone Verification is completed now you can login using this phone number");
 
         return ResponseEntity.ok("Phone is not verified");
 

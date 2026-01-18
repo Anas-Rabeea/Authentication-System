@@ -43,11 +43,6 @@ public class PhoneAuthenticationService {
             return generateAccessToken(user);
         }
 
-
-    private Role chooseRole(String role){
-        return role.matches("Customer") ? Role.CUSTOMER : Role.WORKER;
-    }
-
     private AppUser registerNewUser(PhoneAuthRequest request){
         final AppUser newAppUser =
                 AppUser
@@ -55,7 +50,7 @@ public class PhoneAuthenticationService {
                         .phone(request.phone())
                         .appAuthProvider(AppAuthProvider.PHONE)
                         .phoneVerified(false)
-                        .role(this.chooseRole(request.role()))
+                        .role(Role.valueOf(request.role()))
                         .build();
         return appUserRepo.save(newAppUser);
     }
