@@ -9,8 +9,6 @@ import com.anascoding.auth_system.entity.Role;
 import com.anascoding.auth_system.repository.AppUserRepo;
 import com.anascoding.auth_system.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,7 +20,6 @@ public class PhoneAuthenticationService {
 
         private final OtpServiceImpl otpServiceImpl;
         private final AppUserRepo appUserRepo;
-        private final AuthenticationManager authManager;
         private final JwtUtils jwtUtils;
 
         public PhoneAuthResponse authenticate(PhoneAuthRequest request)
@@ -47,8 +44,6 @@ public class PhoneAuthenticationService {
 
 
     private Role chooseRole(String role){
-        // customer > is the one who offers jobs to workers
-        // worker is like electrician, plumber
         return role.matches("Customer") ? Role.CUSTOMER : Role.WORKER;
     }
 
@@ -56,28 +51,13 @@ public class PhoneAuthenticationService {
         final AppUser newAppUser =
                 AppUser
                         .builder()
-                        .phone(request.phone())
+                        .phone("+2" + request.phone())
                         .appAuthProvider(AppAuthProvider.PHONE)
                         .phoneVerified(false)
                         .role(this.chooseRole(request.role()))
                         .build();
         return appUserRepo.save(newAppUser);
     }
-
-    // we can't use Authentication Manager without username:password (DoaAuthenticationProvider will not work)
-
-//    private void authenticateUser(AppUser user) {
-//
-//
-//        UsernamePasswordAuthenticationToken authToken =
-//                new UsernamePasswordAuthenticationToken(
-//                        user.getPhone(),
-//                        null,
-//                        user.getAuthorities()
-//                ) ;
-//        authManager.authenticate(authToken);
-//    }
-
 
     private PhoneAuthResponse generateAccessToken(AppUser userFromDb) {
         final String accessToken = this.jwtUtils.generateAccessToken(userFromDb.getPhone());

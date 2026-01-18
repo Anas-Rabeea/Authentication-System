@@ -24,7 +24,7 @@ public class OtpServiceImpl implements OtpService {
     private final RedisTemplate<String,String> redisTemplate;
 
     private static final String CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    private static final Duration OTP_TTL = Duration.ofMinutes(2);
+    private static final Duration OTP_TTL = Duration.ofMinutes(5);
 
 
     @Override
@@ -36,6 +36,10 @@ public class OtpServiceImpl implements OtpService {
         redisTemplate
                .opsForValue()
                .set("otp:phone:%s".formatted(phone) , otp , OTP_TTL );
+        // debugging
+        redisTemplate.opsForValue()
+                .set("test:key", "123", Duration.ofMinutes(5));
+
         this.smsService.sendOtp(phone , otp);
     }
 
@@ -43,13 +47,16 @@ public class OtpServiceImpl implements OtpService {
 
     public boolean verifyOtp(String otp , String phone)
     {
-        if(otp.isBlank())
+        if(otp.isBlank() || phone.isBlank())
             return false;
 
         String redisKey = "otp:phone:%s".formatted(phone);
         String storedOtp = redisTemplate
                             .opsForValue()
                             .get(redisKey);
+        // debugging
+        log.info("Redis test = {}",
+                redisTemplate.opsForValue().get("test:key"));
 
         // if OTP is wrong redis will not return a value which means phone will be null
         if(storedOtp == null || !storedOtp.matches(otp))
@@ -63,10 +70,11 @@ public class OtpServiceImpl implements OtpService {
 
         // TODO -- after user send correct OTP phoneVerified stays false in the DB ,  check why
         verifiedUser.setPhoneVerified(true);
-        this.appUserRepo.save(verifiedUser);
+        this.appUserRepo.saveAndFlush(verifiedUser);
 
         log.info("{} : Phone is verified." , phone);
         redisTemplate.delete(redisKey);
+        redisTemplate.delete("test:key");
 
         return true;
     }

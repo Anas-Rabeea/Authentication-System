@@ -21,8 +21,7 @@ public class SmsService {
                 twilioProperties.getTWILIO_ACCOUNT_SID(),
                 twilioProperties.getTWILIO_AUTH_TOKEN());
 
-//        String to =  "+2" + phoneNumber;
-        String to =  phoneNumber;
+        String to =  "+2" + phoneNumber; // +2 is the EG Phone Code
         Message.creator(
                 new com.twilio.type.PhoneNumber(to), // to
                 new com.twilio.type.PhoneNumber(twilioProperties.getTWILIO_PHONE_NUMBER()), // from (Twilio)

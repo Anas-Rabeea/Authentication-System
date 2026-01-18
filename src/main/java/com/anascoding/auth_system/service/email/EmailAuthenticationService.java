@@ -27,9 +27,7 @@ public class EmailAuthenticationService {
     private final EmailVerificationService verificationService;
 
     public EmailAuthResponse authenticate(EmailAuthRequest request) {
-        // check if user is already exist or not
-        // if exist > validate username and password
-        // if not exist > register + send verification email
+
         Optional<AppUser> userFromDb = appUserRepo
                 .findByEmail(request.email());
 
@@ -37,16 +35,12 @@ public class EmailAuthenticationService {
             AppUser newUser = registerNewUser(request);
             this.verificationService.sendVerificationEmail(request.email());
         }
-        // need to convert optional user to AppUser
         AppUser user = userFromDb.get();
 
-        // Check if email is verified (Some users add email and password and wait till email verification)
         if(!user.isEmailVerified()){
             this.verificationService.sendVerificationEmail(user.getEmail());
         }
 
-        // try to authenticate User
-        // if succeeded > issue a refresh / access tokens else we verify email and generate token
         authenticateUser(request);
 
         return generateAccessToken(user);
@@ -63,8 +57,7 @@ public class EmailAuthenticationService {
     }
 
     private Role chooseRole(String role){
-        // customer > is the one who offers jobs to workers
-        // worker is like electrician, plumber
+
       return role.matches("Customer") ? Role.CUSTOMER : Role.WORKER;
     }
 
@@ -89,13 +82,6 @@ public class EmailAuthenticationService {
                         request.email(),
                         request.password()
                 ) ;
-
-        // Used Auth Manager to validate username and encoded password
-        // if user not valid throw AuthenticationException
-        // Only Who Set Authentication > JwtAuthFilter + AuthManager (Not a service)
         authManager.authenticate(authToken);
-
-        // dangerous
-//        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }

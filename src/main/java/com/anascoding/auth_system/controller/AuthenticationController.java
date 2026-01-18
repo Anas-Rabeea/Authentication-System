@@ -67,8 +67,11 @@ public class AuthenticationController {
             @RequestBody @Valid
             PhoneVerificationRequest request
     ){
-        this.otpServiceImpl.verifyOtp(request.otp() , request.phone());
-        return ResponseEntity.ok("Phone Verification is completed , Now you can login using your phone number");
+        if(this.otpServiceImpl.verifyOtp(request.otp() , request.phone()))
+            return ResponseEntity.ok("Your Phone Verification is completed now you can login using this phone number");
+
+        return ResponseEntity.ok("Phone is not verified");
+
     }
 
 
