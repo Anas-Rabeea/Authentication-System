@@ -7,11 +7,7 @@ import jakarta.validation.ConstraintValidatorContext;
 public class StrongPasswordValidator implements ConstraintValidator<StrongPassword,String> {
 
     private static final String PASSWORD_REGEX =
-            "^(?=.*[a-z])" +        // at least one lowercase
-                    "(?=.*[A-Z])" +         // at least one uppercase
-                    "(?=.*\\d)" +           // at least one digit
-                    "(?=.*[@$!%*?&])" +     // at least one special character
-                    "[A-Za-z\\d@$!%*?&]{10,}$"; // min 10 chars, no spaces
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9])[^\\s]{10,}$"; // min 10 chars, no spaces
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
