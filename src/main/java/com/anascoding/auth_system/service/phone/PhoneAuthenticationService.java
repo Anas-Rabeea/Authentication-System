@@ -39,11 +39,9 @@ public class PhoneAuthenticationService {
             AppUser user = userFromDb.get();
 
             // Check if email is verified (Some users add email and password and wait till email verification)
-            if(!user.isEmailVerified()){
+            if(!user.isPhoneVerified()){
                 this.otpServiceImpl.sendPhoneVerificationOtp(user.getPhone());
             }
-            // if it reached till here means that user is already existed (Login)
-            authenticateUser(user);
             return generateAccessToken(user);
         }
 
@@ -66,17 +64,19 @@ public class PhoneAuthenticationService {
         return appUserRepo.save(newAppUser);
     }
 
-    private void authenticateUser(AppUser user) {
+    // we can't use Authentication Manager without username:password (DoaAuthenticationProvider will not work)
 
-
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        user.getPhone(),
-                        null,
-                        user.getAuthorities()
-                ) ;
-        authManager.authenticate(authToken);
-    }
+//    private void authenticateUser(AppUser user) {
+//
+//
+//        UsernamePasswordAuthenticationToken authToken =
+//                new UsernamePasswordAuthenticationToken(
+//                        user.getPhone(),
+//                        null,
+//                        user.getAuthorities()
+//                ) ;
+//        authManager.authenticate(authToken);
+//    }
 
 
     private PhoneAuthResponse generateAccessToken(AppUser userFromDb) {
