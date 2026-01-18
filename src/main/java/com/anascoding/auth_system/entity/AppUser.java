@@ -93,6 +93,7 @@ public class AppUser implements UserDetails {
     public @Nullable String getPassword() {
         return this.password;
     }
+    //
 
     @Override
     public String getUsername() {
