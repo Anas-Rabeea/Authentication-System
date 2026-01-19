@@ -43,14 +43,14 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/oauth2/authorization/google", "/oauth2/authorization/facebook").permitAll()
-                                .requestMatchers("login/oauth2/**").permitAll()
+                                .requestMatchers("/login/oauth2/**").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated())
                 .oauth2Login( oauth ->
                         oauth
-                                .successHandler(oAuth2SuccessHandler)
                                 .userInfoEndpoint(
-                                        (user) -> user.userService(oAuth2UserService) ))
+                                        user -> user.userService(oAuth2UserService) )
+                                .successHandler(oAuth2SuccessHandler))
                 .userDetailsService(customUserDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 ;
